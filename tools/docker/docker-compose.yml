@@ -1,0 +1,44 @@
+version: '3'
+services:
+    wallet_web:
+        container_name: wallet-web
+        hostname: "family-wallet.local"
+        build: ./build/web
+        volumes:
+            - ../../:/var/www/sources
+        depends_on:
+            - wallet_database
+        networks:
+            wallet_net:
+                ipv4_address: 192.168.27.10
+
+    wallet_database:
+        container_name: wallet-db
+        hostname: "family-wallet-db.local"
+        image: mysql:5.7
+        env_file:
+            - env/mysql.env
+        networks:
+            wallet_net:
+                ipv4_address: 192.168.27.20
+
+    wallet_phpmyadmin:
+        container_name: wallet-pma
+        hostname: "family-wallet-pma.local"
+        image: phpmyadmin/phpmyadmin
+        env_file:
+            - env/pma.env
+        restart: always
+        depends_on:
+            - wallet_database
+        networks:
+            wallet_net:
+                ipv4_address: 192.168.27.21
+
+networks:
+    wallet_net:
+        driver: bridge
+        ipam:
+            driver: default
+            config:
+            - subnet: 192.168.27.0/24
